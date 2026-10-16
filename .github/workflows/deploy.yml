@@ -13,35 +13,24 @@ jobs:
       - name: Checkout source
         uses: actions/checkout@v4
 
-      - name: Load Node from NVM
-        shell: bash
-        run: |
-          export NVM_DIR="$HOME/.nvm"
-          [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"
-
-          nvm use 22
-
-          node -v
-          npm -v
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
 
       - name: Install dependencies
-        shell: bash
-        run: |
-          export NVM_DIR="$HOME/.nvm"
-          [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"
-          nvm use 22
+        run: npm ci
 
-          npm ci
+      - name: Lint
+        run: npm run lint
+
+      - name: Type check
+        run: npm run typecheck
 
       - name: Generate Nuxt static site
-        shell: bash
-        run: |
-          export NVM_DIR="$HOME/.nvm"
-          [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"
-          nvm use 22
+        run: npm run generate
 
-          npm run generate
-
-      - name: Deploy to Nginx directory
+      - name: Deploy to Nginx
         run: |
           rsync -av --delete .output/public/ /var/www/skinlab-landing/
