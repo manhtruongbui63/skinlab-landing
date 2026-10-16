@@ -18,7 +18,7 @@ function handleSubmit() {
 
 <template>
   <div style="padding: 30px; font-family: sans-serif; max-width: 500px;">
-    <h1>Contact SkinLab</h1>
+    <h1>Contact SkinLab {{ age }}</h1>
     <p>Trang liên hệ kiểm tra form và Vue reactivity.</p>
     
     <div v-if="submitted" style="margin: 15px 0; padding: 10px; background: #e0f2fe; color: #0369a1; border-radius: 4px;">
