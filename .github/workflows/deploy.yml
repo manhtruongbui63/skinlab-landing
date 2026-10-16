@@ -1,4 +1,4 @@
-name: Deploy Skinlab Landing
+name: CI/CD Skinlab Landing
 
 on:
   push:
@@ -6,8 +6,9 @@ on:
       - master
 
 jobs:
-  deploy:
-    runs-on: self-hosted
+  ci:
+    name: CI - Verify and Build
+    runs-on: ubuntu-latest
 
     steps:
       - name: Checkout source
@@ -31,6 +32,24 @@ jobs:
       - name: Generate Nuxt static site
         run: npm run generate
 
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: skinlab-landing-build
+          path: .output/public
+
+  deploy:
+    name: CD - Deploy
+    needs: ci
+    runs-on: self-hosted
+
+    steps:
+      - name: Download build artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: skinlab-landing-build
+          path: dist
+
       - name: Deploy to Nginx
         run: |
-          rsync -av --delete .output/public/ /var/www/skinlab-landing/
+          rsync -av --delete dist/ /var/www/skinlab-landing/
