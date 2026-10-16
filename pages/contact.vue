@@ -5,7 +5,7 @@ const name = ref('')
 const email = ref('')
 const message = ref('')
 const submitted = ref(false)
-const age: number = 'abc'
+const age = ref(Number)(20) 
 
 function handleSubmit() {
   submitted.value = true
