@@ -1,11 +1,11 @@
-<script setup>
+<script setup lang="ts">
 import { ref } from 'vue'
 
 const name = ref('')
 const email = ref('')
 const message = ref('')
 const submitted = ref(false)
-const age = ref(Number)(20) 
+const age = ref<number>(20)
 
 function handleSubmit() {
   submitted.value = true
