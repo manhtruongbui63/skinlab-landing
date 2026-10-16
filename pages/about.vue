@@ -1,5 +1,6 @@
 <template>
   <div style="padding: 30px; font-family: sans-serif;">
+    <p>Tôi đã triển khai giai đoạn 2</p>
     <h1>Update Lần 1, Lần 2</h1>
     <p>Xin chào các bạn nhỏ!</p>
     <h1>About SkinLab</h1>
