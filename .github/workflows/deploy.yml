@@ -91,7 +91,7 @@ jobs:
 
           if curl --fail \
             -H "Host: skinlab.local" \
-            curl --fail http://127.0.0.1:9999/ > /dev/null; then
+            curl --fail http://127.0.0.1/ > /dev/null; then
 
             echo "Health check passed"
             echo "Deployment successful"
