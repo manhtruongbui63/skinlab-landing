@@ -91,7 +91,7 @@ jobs:
 
           if curl --fail \
             -H "Host: skinlab.local" \
-            http://127.0.0.1/not-found-for-rollback-test > /dev/null; then
+            curl --fail http://127.0.0.1:9999/ > /dev/null; then
 
             echo "Health check passed"
             echo "Deployment successful"
