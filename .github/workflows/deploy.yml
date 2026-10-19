@@ -44,27 +44,74 @@ jobs:
     runs-on: self-hosted
 
     steps:
-      - name: Download artifact
+      - name: Download build artifact
         uses: actions/download-artifact@v4
         with:
           name: skinlab-landing-build
           path: dist
 
-      - name: Create release
+      - name: Deploy release with rollback
+        shell: bash
         run: |
-          RELEASE_DIR="/var/www/skinlab-landing/releases/${{ github.sha }}"
+          set -e
+
+          BASE_DIR="/var/www/skinlab-landing"
+          RELEASE_DIR="$BASE_DIR/releases/${{ github.sha }}"
+          CURRENT_LINK="$BASE_DIR/current"
+
+          echo "=== Current release before deploy ==="
+
+          PREVIOUS_RELEASE=""
+
+          if [ -L "$CURRENT_LINK" ]; then
+            PREVIOUS_RELEASE=$(readlink -f "$CURRENT_LINK")
+            echo "Previous release: $PREVIOUS_RELEASE"
+          else
+            echo "No previous release found"
+          fi
+
+          echo "=== Creating new release ==="
 
           mkdir -p "$RELEASE_DIR"
 
           rsync -av --delete dist/ "$RELEASE_DIR/"
 
-      - name: Activate release
-        run: |
-          RELEASE_DIR="/var/www/skinlab-landing/releases/${{ github.sha }}"
+          echo "New release: $RELEASE_DIR"
 
-          ln -sfn "$RELEASE_DIR" /var/www/skinlab-landing/current
+          echo "=== Activating new release ==="
 
-      - name: Health check
-        run: |
+          ln -sfn "$RELEASE_DIR" "$CURRENT_LINK"
+
+          echo "Current now points to:"
+          readlink -f "$CURRENT_LINK"
+
+          echo "=== Running health check ==="
+
           sleep 2
-          curl --fail http://127.0.0.1:9999/
+
+          if curl --fail \
+            -H "Host: skinlab.local" \
+            http://127.0.0.1/ > /dev/null; then
+
+            echo "Health check passed"
+            echo "Deployment successful"
+
+          else
+
+            echo "Health check failed"
+
+            if [ -n "$PREVIOUS_RELEASE" ]; then
+              echo "Rolling back to:"
+              echo "$PREVIOUS_RELEASE"
+
+              ln -sfn "$PREVIOUS_RELEASE" "$CURRENT_LINK"
+
+              echo "Rollback completed"
+              echo "Current now points to:"
+              readlink -f "$CURRENT_LINK"
+            else
+              echo "No previous release available for rollback"
+            fi
+
+            exit 1
+          fi
