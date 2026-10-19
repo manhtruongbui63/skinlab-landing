@@ -67,4 +67,4 @@ jobs:
       - name: Health check
         run: |
           sleep 2
-          curl --fail -H "Host: skinlab.local" http://127.0.0.1/
+          curl --fail http://127.0.0.1:9999/
