@@ -44,12 +44,27 @@ jobs:
     runs-on: self-hosted
 
     steps:
-      - name: Download build artifact
+      - name: Download artifact
         uses: actions/download-artifact@v4
         with:
           name: skinlab-landing-build
           path: dist
 
-      - name: Deploy to Nginx
+      - name: Create release
         run: |
-          rsync -av --delete dist/ /var/www/skinlab-landing/
+          RELEASE_DIR="/var/www/skinlab-landing/releases/${{ github.sha }}"
+
+          mkdir -p "$RELEASE_DIR"
+
+          rsync -av --delete dist/ "$RELEASE_DIR/"
+
+      - name: Activate release
+        run: |
+          RELEASE_DIR="/var/www/skinlab-landing/releases/${{ github.sha }}"
+
+          ln -sfn "$RELEASE_DIR" /var/www/skinlab-landing/current
+
+      - name: Health check
+        run: |
+          sleep 2
+          curl --fail -H "Host: skinlab.local" http://127.0.0.1/
